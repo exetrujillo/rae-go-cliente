@@ -38,7 +38,6 @@ func main() {
 			return
 		}
 		
-		// Check for conjugations parameter
 		withConjugations := r.URL.Query().Get("conjugaciones") == "true" || r.URL.Query().Get("conjugations") == "true"
 		
 		resp, err := client.FetchWord(id, withConjugations)
