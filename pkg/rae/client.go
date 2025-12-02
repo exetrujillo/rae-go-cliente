@@ -106,25 +106,6 @@ func (c *Client) SendRequest(endpoint string, withConjugations bool) ([]byte, er
 	return []byte(bodyStr), nil
 }
 
-// FetchRaw returns the raw body without parsing (for debugging)
-func (c *Client) FetchRaw(endpoint string) ([]byte, error) {
-	reqURL := BaseURL + endpoint
-	req, err := http.NewRequest(http.MethodGet, reqURL, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Set("User-Agent", UserAgent)
-	req.Header.Set("Authorization", AuthToken)
-
-	resp, err := c.http.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	return io.ReadAll(resp.Body)
-}
 
 func (c *Client) GetWordOfTheDay() ([]byte, error) {
 	return c.SendRequest("wotd?callback=json", false)
