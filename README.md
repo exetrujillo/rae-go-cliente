@@ -105,6 +105,7 @@ Obtiene la definición completa de una palabra usando su ID (obtenido de `/searc
 
 **Parámetros:**
 - `id` (requerido): ID de la palabra
+- `conjugaciones` (opcional): `true` para incluir tablas de conjugación (solo verbos)
 
 **Ejemplo:**
 ```bash
@@ -142,6 +143,9 @@ curl "http://localhost:8080/fetch?id=KYtLWBc"
   - `definicion`: Texto de la definición
   - `sinonimos`: Lista de sinónimos (si existen)
   - `antonimos`: Lista de antónimos (si existen)
+  - `conjugaciones`: Lista de conjugaciones (si se solicita con `conjugaciones=true`)
+    - `modo`: Modo verbal (Indicativo, Subjuntivo, etc.)
+    - `tiempos`: Mapa de tiempos verbales y sus formas
 
 ---
 

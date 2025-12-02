@@ -37,7 +37,11 @@ func main() {
 			http.Error(w, "Falta el parámetro 'id'", http.StatusBadRequest)
 			return
 		}
-		resp, err := client.FetchWord(id)
+		
+		// Check for conjugations parameter
+		withConjugations := r.URL.Query().Get("conjugaciones") == "true" || r.URL.Query().Get("conjugations") == "true"
+		
+		resp, err := client.FetchWord(id, withConjugations)
 		handleResponse(w, resp, err)
 	})
 
@@ -51,7 +55,7 @@ func main() {
 		handleResponse(w, resp, err)
 	})
 
-    http.HandleFunc("/anagram", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/anagram", func(w http.ResponseWriter, r *http.Request) {
 		word := r.URL.Query().Get("w")
 		if word == "" {
 			http.Error(w, "Falta el parámetro 'w'", http.StatusBadRequest)

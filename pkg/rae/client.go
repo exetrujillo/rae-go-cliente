@@ -34,7 +34,7 @@ func NewClient() *Client {
 	}
 }
 
-func (c *Client) SendRequest(endpoint string) ([]byte, error) {
+func (c *Client) SendRequest(endpoint string, withConjugations bool) ([]byte, error) {
 	if strings.HasPrefix(endpoint, "/") {
 		endpoint = endpoint[1:]
 	}
@@ -71,7 +71,7 @@ func (c *Client) SendRequest(endpoint string) ([]byte, error) {
 	// Verificar si es un artículo HTML (necesita análisis)
 	if strings.Contains(bodyStr, "<article id=") {
 		// Analizar HTML a JSON
-		parsed, err := ParseHTMLDefinitions(bodyStr)
+		parsed, err := ParseHTMLDefinitions(bodyStr, withConjugations)
 		if err != nil {
 			return nil, fmt.Errorf("error al analizar HTML: %v", err)
 		}
@@ -106,29 +106,49 @@ func (c *Client) SendRequest(endpoint string) ([]byte, error) {
 	return []byte(bodyStr), nil
 }
 
+// FetchRaw returns the raw body without parsing (for debugging)
+func (c *Client) FetchRaw(endpoint string) ([]byte, error) {
+	reqURL := BaseURL + endpoint
+	req, err := http.NewRequest(http.MethodGet, reqURL, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("User-Agent", UserAgent)
+	req.Header.Set("Authorization", AuthToken)
+
+	resp, err := c.http.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	return io.ReadAll(resp.Body)
+}
+
 func (c *Client) GetWordOfTheDay() ([]byte, error) {
-	return c.SendRequest("wotd?callback=json")
+	return c.SendRequest("wotd?callback=json", false)
 }
 
 func (c *Client) GetRandomWord() ([]byte, error) {
-	return c.SendRequest("random")
+	return c.SendRequest("random", false)
 }
 
 func (c *Client) SearchWord(query string) ([]byte, error) {
-	return c.SendRequest("search?w=" + url.QueryEscape(query))
+	return c.SendRequest("search?w="+url.QueryEscape(query), false)
 }
 
-func (c *Client) FetchWord(id string) ([]byte, error) {
-	return c.SendRequest("fetch?id=" + url.QueryEscape(id))
+func (c *Client) FetchWord(id string, withConjugations bool) ([]byte, error) {
+	return c.SendRequest("fetch?id="+url.QueryEscape(id), withConjugations)
 }
 
 func (c *Client) KeyQuery(query string) ([]byte, error) {
 	params := url.Values{}
 	params.Set("q", query)
 	params.Set("callback", "jsonp123")
-	return c.SendRequest("keys?" + params.Encode())
+	return c.SendRequest("keys?"+params.Encode(), false)
 }
 
 func (c *Client) SearchAnagram(word string) ([]byte, error) {
-	return c.SendRequest("anagram?w=" + url.QueryEscape(word))
+	return c.SendRequest("anagram?w="+url.QueryEscape(word), false)
 }
